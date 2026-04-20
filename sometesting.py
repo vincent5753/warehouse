@@ -85,3 +85,48 @@ def test_php_env_configuration(host):
     assert parsed_env.get("APP_ENV") == "production"
     assert parsed_env.get("DB_CONNECTION") == "mysql"
     assert parsed_env.get("APP_DEBUG") == "false"
+
+# ---------------------------------------------------------
+# 6. Check if a Specific Disk is Mounted at Specific Mount Point
+# ---------------------------------------------------------
+@pytest.mark.parametrize("device, mount_point, fstype", [
+    ("/dev/sdb1", "/mnt/app_data", "ext4"),
+    # You can easily add more disks to check here:
+    # ("/dev/sdc1", "/mnt/backup", "xfs"),
+])
+def test_specific_disk_mounted_at_point(host, device, mount_point, fstype):
+    # Fetch the mount point information from the host
+    mount_info = host.mount_point(mount_point)
+    
+    # Verify the mount point exists and is actively mounted
+    assert mount_info.exists, f"No active mount found at {mount_point}"
+    
+    # Verify the correct device is mounted at this point
+    assert mount_info.device == device, f"Expected device {device} at {mount_point}, but found {mount_info.device}"
+    
+    # Verify the filesystem matches what we expect
+    assert mount_info.filesystem == fstype, f"Expected {fstype} filesystem, but found {mount_info.filesystem}"
+
+# ---------------------------------------------------------
+# 7. Check if a Specific File Contains Specific Line of Text
+# ---------------------------------------------------------
+@pytest.mark.parametrize("file_path, expected_line", [
+    ("/etc/ssh/sshd_config", "PermitRootLogin no"),
+    ("/etc/timezone", "Australia/Melbourne"),
+    # Add more file paths and lines as needed
+])
+def test_file_contains_exact_line(host, file_path, expected_line):
+    target_file = host.file(file_path)
+    
+    # Ensure the file actually exists before trying to read it
+    assert target_file.exists, f"The file {file_path} does not exist"
+    assert target_file.is_file, f"The path {file_path} exists but is not a regular file"
+    
+    # Get the file content as a string and split it into a list of lines.
+    # We do this instead of target_file.contains() because .contains() uses regex/substring matching.
+    # Splitting into lines ensures we are matching the *exact* line of text, preventing false positives.
+    file_lines = target_file.content_string.splitlines()
+    
+    # Strip whitespace from the lines just in case of trailing spaces, then check for the expected line
+    cleaned_lines = [line.strip() for line in file_lines]
+    assert expected_line in cleaned_lines, f"Exact line '{expected_line}' was not found in {file_path}"
