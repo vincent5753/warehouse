@@ -148,6 +148,35 @@ gen_random_ipv4() {
     echo "${octet1}.${octet2}.${octet3}.${octet4}"
 }
 
+# -----------------------------------------------------------------------------
+# def check_file_exists(file_path: str) -> int:
+# """
+# Validates whether a given file path exists and is a regular file.
+# 
+# Args:
+#     file_path (str): The absolute or relative path to the file.
+# 
+# Returns:
+#     int: 0 (True) if the file exists, 1 (False) if it does not or is empty.
+# """
+# -----------------------------------------------------------------------------
+check_file_exists() {
+    declare -r file_path="$1"
+    
+    if [[ -z "${file_path}" ]]; then
+        echo "No file path provided to check_file_exists()."
+        return 1
+    fi
+
+    if [[ -f "${file_path}" ]]; then
+        echo "File exists: ${file_path}"
+        return 0
+    else
+        echo "File does not exist: ${file_path}"
+        return 1
+    fi
+}
+
 # ==============================================================================
 # Execution & Testing
 # ==============================================================================
@@ -191,6 +220,12 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 
     echo "9. gen_random_ipv4 (Generate a random IP address):"
     gen_random_ipv4
+    echo ""
+
+    echo "10. check_file_exists"
+    declare file_exist=0
+    check_file_exists "/tmp/somefile" || file_exist=$?
+    echo ${file_exist}
     echo ""
 
 fi

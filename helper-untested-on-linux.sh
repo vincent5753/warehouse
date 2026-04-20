@@ -42,34 +42,6 @@ _error() {
 # Helper Functions
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# def check_file_exists(file_path: str) -> int:
-# """
-# Validates whether a given file path exists and is a regular file.
-# 
-# Args:
-#     file_path (str): The absolute or relative path to the file.
-# 
-# Returns:
-#     int: 0 (True) if the file exists, 1 (False) if it does not or is empty.
-# """
-# -----------------------------------------------------------------------------
-check_file_exists() {
-    declare -r file_path="$1"
-    
-    if [[ -z "${file_path}" ]]; then
-        _error "No file path provided to check_file_exists()."
-        return 1
-    fi
-
-    if [[ -f "${file_path}" ]]; then
-        _info "File exists: ${file_path}"
-        return 0
-    else
-        _error "File does not exist: ${file_path}"
-        return 1
-    fi
-}
 
 # -----------------------------------------------------------------------------
 # def mount_device(device: str, mount_point: str) -> int:
